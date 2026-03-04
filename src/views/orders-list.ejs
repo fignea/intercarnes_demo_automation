@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Órdenes - Demo Intercarnes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+      header {
+        padding: 1.5rem 2rem;
+        background: radial-gradient(circle at top left, #22c55e, #0f172a);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.75rem;
+      }
+      main {
+        max-width: 960px;
+        margin: 2rem auto;
+        padding: 0 1rem 2rem;
+      }
+      .card {
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+      th,
+      td {
+        padding: 0.75rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+        font-size: 0.9rem;
+      }
+      th {
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+      tr:hover td {
+        background: rgba(31, 41, 55, 0.7);
+      }
+      a {
+        color: #22c55e;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.12);
+        color: #bbf7d0;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .empty-state {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #9ca3af;
+      }
+      footer {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Órdenes de compra - Demo</h1>
+      <p style="margin: 0.25rem 0 0; color: #e5e7eb; font-size: 0.9rem">
+        Visualización pública de órdenes generadas vía API.
+      </p>
+    </header>
+    <main>
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; gap: 1rem">
+          <div>
+            <h2 style="margin: 0; font-size: 1.1rem">Listado de órdenes</h2>
+            <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #9ca3af">
+              Las órdenes se crean y confirman únicamente por API. Esta vista es
+              solo para consulta.
+            </p>
+          </div>
+          <div style="text-align: right">
+            <span class="tag">API Driven</span>
+          </div>
+        </div>
+
+        <% if (orders && orders.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Intención</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(o => { %>
+            <tr>
+              <td>#<%= o.id %></td>
+              <td>
+                <% if (o.intention_key) { %>
+                <code
+                  style="
+                    padding: 0.15rem 0.35rem;
+                    border-radius: 0.4rem;
+                    background: rgba(15, 23, 42, 0.9);
+                    border: 1px solid rgba(55, 65, 81, 0.9);
+                    font-size: 0.7rem;
+                  "
+                  ><%= o.intention_key %></code
+                >
+                <% } else { %>
+                <span style="color: #6b7280; font-size: 0.8rem"
+                  >sin intención</span
+                >
+                <% } %>
+              </td>
+              <td><%= o.producto || '-' %></td>
+              <td><%= o.cantidad || '-' %></td>
+              <td>
+                <%= o.created_at
+                  ? new Date(o.created_at).toLocaleString('es-AR')
+                  : '-' %>
+              </td>
+              <td>
+                <a href="/orders/<%= o.id %>">Ver detalle</a>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <p class="empty-state">
+          Aún no hay órdenes creadas. Usá la API para generar una intención y
+          luego confirmar la orden.
+        </p>
+        <% } %>
+      </section>
+
+      <footer>
+        Demo Intercarnes · Backend Node.js / MySQL · Visualización pública
+      </footer>
+    </main>
+  </body>
+  </html>
+

@@ -1,0 +1,73 @@
+const express = require('express');
+const pool = require('../db');
+const router = express.Router();
+
+function buildIntentionId() {
+  return `INT-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+router.post('/', async (req, res) => {
+  const {
+    intentionId,
+    producto,
+    cantidad,
+    foto_url,
+    audio_url,
+    telefono,
+    nombre
+  } = req.body;
+
+  const id = intentionId || buildIntentionId();
+
+  try {
+    const [result] = await pool.execute(
+      `INSERT INTO intentions 
+        (intention_key, producto, cantidad, foto_url, audio_url, telefono, nombre, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+       ON DUPLICATE KEY UPDATE
+         producto = VALUES(producto),
+         cantidad = VALUES(cantidad),
+         foto_url = VALUES(foto_url),
+         audio_url = VALUES(audio_url),
+         telefono = VALUES(telefono),
+         nombre = VALUES(nombre),
+         updated_at = NOW()`,
+      [id, producto || null, cantidad || null, foto_url || null, audio_url || null, telefono || null, nombre || null]
+    );
+
+    const [rows] = await pool.execute(
+      'SELECT * FROM intentions WHERE intention_key = ?',
+      [id]
+    );
+
+    res.status(201).json({
+      ok: true,
+      intention: rows[0]
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: 'Error al guardar la intención' });
+  }
+});
+
+router.get('/:intentionKey', async (req, res) => {
+  const { intentionKey } = req.params;
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM intentions WHERE intention_key = ?',
+      [intentionKey]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ ok: false, error: 'Intención no encontrada' });
+    }
+
+    res.json({ ok: true, intention: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: 'Error al obtener la intención' });
+  }
+});
+
+module.exports = router;
+
