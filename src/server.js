@@ -25,7 +25,8 @@ app.get('/', (req, res) => {
 
 app.use('/orders', ordersRouter.viewRouter);
 
-app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+const host = process.env.HOST || '0.0.0.0';
+app.listen(port, host, () => {
+  console.log(`Servidor escuchando en http://${host}:${port}`);
 });
 

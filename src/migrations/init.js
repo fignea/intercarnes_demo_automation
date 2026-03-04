@@ -22,6 +22,7 @@ async function run() {
       audio_url TEXT NULL,
       telefono VARCHAR(50) NULL,
       nombre VARCHAR(255) NULL,
+      converted_to_order_at DATETIME NULL,
       created_at DATETIME NOT NULL,
       updated_at DATETIME NOT NULL
     )
@@ -47,6 +48,12 @@ async function run() {
     await connection.execute(createIntentions);
     console.log('Creando tabla orders (si no existe)...');
     await connection.execute(createOrders);
+    try {
+      await connection.execute('ALTER TABLE intentions ADD COLUMN converted_to_order_at DATETIME NULL');
+      console.log('Columna converted_to_order_at agregada.');
+    } catch (alterErr) {
+      if (alterErr.code !== 'ER_DUP_FIELDNAME') throw alterErr;
+    }
     console.log('Migración completada.');
   } catch (err) {
     console.error('Error ejecutando migración:', err);

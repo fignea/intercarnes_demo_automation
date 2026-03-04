@@ -60,6 +60,13 @@ apiRouter.post('/', async (req, res) => {
       ]
     );
 
+    if (intentionKey) {
+      await pool.execute(
+        'UPDATE intentions SET converted_to_order_at = NOW() WHERE intention_key = ?',
+        [intentionKey]
+      );
+    }
+
     const [rows] = await pool.execute(
       'SELECT * FROM orders WHERE id = ?',
       [result.insertId]

@@ -1,5 +1,5 @@
 {
-  "name": "[PRD] - TEST PARA INTERCARNES",
+  "name": "[DEMO] Intercarnes - Intención por teléfono",
   "nodes": [
     {
       "parameters": {
@@ -77,7 +77,7 @@
         "url": "=https://TU_APP_RUNNER_URL/api/orders",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  producto: $json.producto,\n  cantidad: $json.cantidad,\n  foto_url: $json.photoUrl || '',\n  audio_url: $json.audioUrl || '',\n  telefono: $json.telefono,\n  nombre: $json.nombre || ''\n} }}",
+        "jsonBody": "={{ {\n  intentionKey: $json.intention?.intention_key || $json.telefono,\n  producto: $json.producto,\n  cantidad: $json.cantidad,\n  foto_url: $json.photoUrl || '',\n  audio_url: $json.audioUrl || '',\n  telefono: $json.telefono,\n  nombre: $json.nombre || ''\n} }}",
         "options": {
           "response": {
             "response": {
@@ -351,13 +351,97 @@
     },
     {
       "parameters": {
+        "language": "JavaScript",
+        "jsCode": "const BASE_URL = 'https://TU_APP_RUNNER_URL';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nlet hasOpenIntention = false;\nlet intention = null;\ntry {\n  const res = await fetch(`${BASE_URL}/api/intentions/open-by-phone/${encodeURIComponent(telefono)}`);\n  const data = await res.json();\n  if (data.ok && data.intention) {\n    hasOpenIntention = true;\n    intention = data.intention;\n  }\n} catch (e) {}\nreturn [{ json: { ...item, hasOpenIntention, intention } }];"
+      },
+      "id": "nodo-cargar-intencion",
+      "name": "Cargar intención abierta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ -100, 500 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.hasOpenIntention }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "isEqual", "name": "filter.operator.isEqual" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "nodo-if-intencion",
+      "name": "¿Hay intención abierta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [ 100, 500 ]
+    },
+    {
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "const BASE_URL = 'https://TU_APP_RUNNER_URL';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nconst greeting = '¡Hola! Bienvenido a la demo de Intercarnes. Contame qué producto te interesa y en qué cantidad. Recordá que es solo una demo.';\ntry {\n  await fetch(`${BASE_URL}/api/intentions`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ intentionId: telefono, telefono })\n  });\n} catch (e) {}\nreturn [{ json: { ...item, agentReply: greeting } }];"
+      },
+      "id": "nodo-crear-intencion-saludo",
+      "name": "Crear intención y saludo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 320, 640 ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "727976767061895",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}",
+        "textBody": "={{ $json.agentReply }}",
+        "additionalFields": { "previewUrl": true }
+      },
+      "id": "nodo-wa-saludo-inicial",
+      "name": "WA Saludo inicial",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [ 540, 640 ],
+      "credentials": { "whatsAppApi": { "id": "OiH3aZrALsnmETZ0", "name": "FIGNEA PRD" } }
+    },
+    {
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "const item = $input.item.json;\nconst intention = item.intention || {};\nreturn [{ json: {\n  ...item,\n  productoActual: intention.producto || '',\n  cantidadActual: intention.cantidad != null ? String(intention.cantidad) : '',\n  nombreActual: intention.nombre || '',\n  photoUrl: item.photoUrl || intention.foto_url || null,\n  audioUrl: item.audioUrl || intention.audio_url || null\n} }];"
+      },
+      "id": "nodo-preparar-contexto",
+      "name": "Preparar contexto agente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 320, 400 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://TU_APP_RUNNER_URL/api/intentions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  intentionId: $json.intention?.intention_key || $json.telefono,\n  telefono: $json.telefono,\n  producto: $json.producto || $json.intention?.producto || '',\n  cantidad: $json.cantidad ?? $json.intention?.cantidad,\n  nombre: $json.nombre || $json.intention?.nombre || '',\n  foto_url: $json.photoUrl || $json.intention?.foto_url || '',\n  audio_url: $json.audioUrl || $json.intention?.audio_url || ''\n} }}",
+        "options": {}
+      },
+      "id": "nodo-actualizar-intencion",
+      "name": "Actualizar intención",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 760, 640 ]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "=https://api.openai.com/v1/chat/completions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "openAiApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un agente conversacional de Intercarnes por WhatsApp para una DEMO. Siempre respondes en español rioplatense. El objetivo es ayudar a crear una intención/orden de compra de un producto. Debes trabajar con estos campos: producto (string, nombre del producto), cantidad (number, unidades aproximadas), nombre (string, nombre de la persona), hasPhoto (boolean, true si el usuario ya envió al menos una foto útil del producto), hasAudio (boolean, true si el usuario ya envió un audio de confirmación), readyToCreateOrder (boolean). Tu comportamiento es: (1) dar la bienvenida y aclarar que es una demo, (2) ir preguntando y confirmando producto, cantidad y nombre; si hay foto/audio marcá hasPhoto/hasAudio en true, (3) mientras falte algo importante, poné readyToCreateOrder=false y en agentReply pedí amablemente lo que falta, (4) cuando ya tengas producto y cantidad como mínimo, y opcionalmente nombre, poné readyToCreateOrder=true y en agentReply escribí un mensaje de confirmación listo para enviar por WhatsApp (con producto, cantidad y nombre si lo tenés) sin mencionar links ni URLs, porque el sistema agrega el link aparte, (5) siempre recordá en agentReply que esto es solo una demo. Tu respuesta SIEMPRE debe ser un JSON con estas claves: agentReply (string), producto (string o null), cantidad (number o null), nombre (string o null), hasPhoto (boolean), hasAudio (boolean), readyToCreateOrder (boolean).\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Mensaje del usuario: \" + $json[\"messageText\"] + \"\\n\\nContexto actual: hasPhoto=\" + $json[\"hasPhoto\"] + \", hasAudio=\" + $json[\"hasAudio\"] + \", telefono=\" + $json[\"telefono\"] + \", nombreActual=\" + ($json[\"nombre\"] || \"\") + \", productoActual=\" + ($json[\"producto\"] || \"\") + \", cantidadActual=\" + ($json[\"cantidad\"] || \"\") + \". Responde solo el JSON pedido, sin texto adicional.\"\n    }\n  ]\n} }}",
+        "jsonBody": "={{ {\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un agente conversacional de Intercarnes por WhatsApp para una DEMO. Siempre respondes en español rioplatense. El objetivo es ayudar a crear una intención/orden de compra de un producto. Debes trabajar con estos campos: producto (string, nombre del producto), cantidad (number, unidades aproximadas), nombre (string, nombre de la persona), hasPhoto (boolean, true si el usuario ya envió al menos una foto útil del producto), hasAudio (boolean, true si el usuario ya envió un audio de confirmación), readyToCreateOrder (boolean). Tu comportamiento es: (1) dar la bienvenida y aclarar que es una demo, (2) ir preguntando y confirmando producto, cantidad y nombre; si hay foto/audio marcá hasPhoto/hasAudio en true, (3) mientras falte algo importante, poné readyToCreateOrder=false y en agentReply pedí amablemente lo que falta, (4) cuando ya tengas producto y cantidad como mínimo, y opcionalmente nombre, poné readyToCreateOrder=true y en agentReply escribí un mensaje de confirmación listo para enviar por WhatsApp (con producto, cantidad y nombre si lo tenés) sin mencionar links ni URLs, porque el sistema agrega el link aparte, (5) siempre recordá en agentReply que esto es solo una demo. Tu respuesta SIEMPRE debe ser un JSON con estas claves: agentReply (string), producto (string o null), cantidad (number o null), nombre (string o null), hasPhoto (boolean), hasAudio (boolean), readyToCreateOrder (boolean).\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Mensaje del usuario: \" + $json[\"messageText\"] + \"\\n\\nContexto actual de esta intención (no borres datos ya guardados): hasPhoto=\" + $json[\"hasPhoto\"] + \", hasAudio=\" + $json[\"hasAudio\"] + \", telefono=\" + $json[\"telefono\"] + \", nombreActual=\" + ($json[\"nombreActual\"] || \"\") + \", productoActual=\" + ($json[\"productoActual\"] || \"\") + \", cantidadActual=\" + ($json[\"cantidadActual\"] || \"\") + \". Responde solo el JSON pedido, sin texto adicional.\"\n    }\n  ]\n} }}",
         "options": {
           "response": {
             "response": {
@@ -384,7 +468,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "// raw puede venir como array [ { ... } ] o como objeto { ... }\nconst raw = items[0].json;\n\n// Si es array, nos quedamos con el primer elemento\nconst completion = Array.isArray(raw) ? raw[0] : raw;\n\n// Sacamos el content del mensaje del modelo\nconst content = completion?.choices?.[0]?.message?.content;\n\nif (!content) {\n  return [\n    {\n      json: {\n        agentReply: 'No se encontró contenido en la respuesta del modelo.',\n        producto: null,\n        cantidad: null,\n        nombre: null,\n        hasPhoto: false,\n        hasAudio: false,\n        readyToCreateOrder: false\n      }\n    }\n  ];\n}\n\n// content es un string con JSON, lo parseamos\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch (e) {\n  // Si algo raro pasa, devolvemos algo seguro\n  parsed = {\n    agentReply: String(content),\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: false,\n    readyToCreateOrder: false\n  };\n}\n\n// Podés mergear acá con datos previos si los necesitás\nreturn [\n  {\n    json: parsed\n  }\n];"
+        "jsCode": "const raw = items[0].json;\nconst completion = Array.isArray(raw) ? raw[0] : raw;\nconst content = completion?.choices?.[0]?.message?.content;\nif (!content) {\n  return [{ json: { agentReply: 'No se encontró contenido.', producto: null, cantidad: null, nombre: null, hasPhoto: false, hasAudio: false, readyToCreateOrder: false } }];\n}\nlet parsed;\ntry { parsed = JSON.parse(content); } catch (e) {\n  parsed = { agentReply: String(content), producto: null, cantidad: null, nombre: null, hasPhoto: false, hasAudio: false, readyToCreateOrder: false };\n}\nconst ctx = $items('Preparar contexto agente')[0]?.json || {};\nparsed.intention = ctx.intention || null;\nparsed.telefono = ctx.telefono || null;\nparsed.photoUrl = ctx.photoUrl || null;\nparsed.audioUrl = ctx.audioUrl || null;\nreturn [{ json: parsed }];"
       },
       "id": "53c3ad9a-4174-4336-9485-9faeae71af16",
       "name": "Parse Agent JSON1",
@@ -606,11 +690,52 @@
     "Normalizar (audio)1": {
       "main": [
         [
-          {
-            "node": "Agente OpenAI1",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Cargar intención abierta", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Normalizar (imagen)1": {
+      "main": [
+        [
+          { "node": "Cargar intención abierta", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Normalizar (texto)1": {
+      "main": [
+        [
+          { "node": "Cargar intención abierta", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Cargar intención abierta": {
+      "main": [
+        [
+          { "node": "¿Hay intención abierta?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "¿Hay intención abierta?": {
+      "main": [
+        [
+          { "node": "Preparar contexto agente", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Crear intención y saludo", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Crear intención y saludo": {
+      "main": [
+        [
+          { "node": "WA Saludo inicial", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Preparar contexto agente": {
+      "main": [
+        [
+          { "node": "Agente OpenAI1", "type": "main", "index": 0 }
         ]
       ]
     },
@@ -619,28 +744,6 @@
         [
           {
             "node": "Get Image",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Normalizar (imagen)1": {
-      "main": [
-        [
-          {
-            "node": "Agente OpenAI1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Normalizar (texto)1": {
-      "main": [
-        [
-          {
-            "node": "Agente OpenAI1",
             "type": "main",
             "index": 0
           }
@@ -672,18 +775,17 @@
     "Tiene todo?1": {
       "main": [
         [
-          {
-            "node": "Crear orden en Node",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Crear orden en Node", "type": "main", "index": 0 }
         ],
         [
-          {
-            "node": "WA Respuesta (pide más)1",
-            "type": "main",
-            "index": 0
-          }
+          { "node": "Actualizar intención", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Actualizar intención": {
+      "main": [
+        [
+          { "node": "WA Respuesta (pide más)1", "type": "main", "index": 0 }
         ]
       ]
     }

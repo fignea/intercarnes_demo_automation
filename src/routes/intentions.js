@@ -50,6 +50,27 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Intención abierta por teléfono (debe ir antes de /:intentionKey)
+router.get('/open-by-phone/:telefono', async (req, res) => {
+  const { telefono } = req.params;
+  try {
+    const [rows] = await pool.execute(
+      `SELECT * FROM intentions
+       WHERE telefono = ? AND converted_to_order_at IS NULL
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [telefono]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ ok: false, error: 'Sin intención abierta', intention: null });
+    }
+    res.json({ ok: true, intention: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: 'Error al buscar intención' });
+  }
+});
+
 router.get('/:intentionKey', async (req, res) => {
   const { intentionKey } = req.params;
   try {
