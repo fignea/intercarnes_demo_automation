@@ -74,7 +74,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://TU_APP_RUNNER_URL/api/orders",
+        "url": "=https://hpkd28enkm.us-east-1.awsapprunner.com/api/orders",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ {\n  intentionKey: $json.intention?.intention_key || $json.telefono,\n  producto: $json.producto,\n  cantidad: $json.cantidad,\n  foto_url: $json.photoUrl || '',\n  audio_url: $json.audioUrl || '',\n  telefono: $json.telefono,\n  nombre: $json.nombre || ''\n} }}",
@@ -352,7 +352,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const BASE_URL = 'https://TU_APP_RUNNER_URL';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nlet hasOpenIntention = false;\nlet intention = null;\ntry {\n  const res = await fetch(`${BASE_URL}/api/intentions/open-by-phone/${encodeURIComponent(telefono)}`);\n  const data = await res.json();\n  if (data.ok && data.intention) {\n    hasOpenIntention = true;\n    intention = data.intention;\n  }\n} catch (e) {}\nreturn [{ json: { ...item, hasOpenIntention, intention } }];"
+        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\n\nlet hasOpenIntention = false;\nlet intention = null;\n\ntry {\n  const res = await fetch(`${BASE_URL}/api/intentions/open-by-phone/${encodeURIComponent(telefono)}`);\n  const data = await res.json();\n\n  if (data.ok && data.intention) {\n    hasOpenIntention = true;\n    intention = data.intention;\n  }\n} catch (e) {\n  // Error silencioso según tu código original\n}\n\nreturn [{\n  json: {\n    ...item,\n    hasOpenIntention,\n    intention\n  }\n}];"
       },
       "id": "nodo-cargar-intencion",
       "name": "Cargar intención abierta",
@@ -384,7 +384,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const BASE_URL = 'https://TU_APP_RUNNER_URL';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nconst greeting = '¡Hola! Bienvenido a la demo de Intercarnes. Contame qué producto te interesa y en qué cantidad. Recordá que es solo una demo.';\ntry {\n  await fetch(`${BASE_URL}/api/intentions`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ intentionId: telefono, telefono })\n  });\n} catch (e) {}\nreturn [{ json: { ...item, agentReply: greeting } }];"
+        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nconst greeting = '¡Hola! Bienvenido a la demo de Intercarnes. Contame qué producto te interesa y en qué cantidad. Recordá que es solo una demo.';\ntry {\n  await fetch(`${BASE_URL}/api/intentions`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ intentionId: telefono, telefono })\n  });\n} catch (e) {}\nreturn [{ json: { ...item, agentReply: greeting } }];"
       },
       "id": "nodo-crear-intencion-saludo",
       "name": "Crear intención y saludo",
@@ -421,7 +421,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://TU_APP_RUNNER_URL/api/intentions",
+        "url": "=https://hpkd28enkm.us-east-1.awsapprunner.com/api/intentions",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ {\n  intentionId: $json.intention?.intention_key || $json.telefono,\n  telefono: $json.telefono,\n  producto: $json.producto || $json.intention?.producto || '',\n  cantidad: $json.cantidad ?? $json.intention?.cantidad,\n  nombre: $json.nombre || $json.intention?.nombre || '',\n  foto_url: $json.photoUrl || $json.intention?.foto_url || '',\n  audio_url: $json.audioUrl || $json.intention?.audio_url || ''\n} }}",
@@ -543,7 +543,7 @@
         "operation": "send",
         "phoneNumberId": "727976767061895",
         "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}",
-        "textBody": "={{ $items('Parse Agent JSON1')[0].json.agentReply + '\\n\\nLink público de esta demo: https://TU_FRONT_URL/orders/' + $json.order.id }}",
+        "textBody": "={{ $items('Parse Agent JSON1')[0].json.agentReply + '\\n\\nLink público de esta demo: https://hpkd28enkm.us-east-1.awsapprunner.com/orders/' + $json.order.id }}",
         "additionalFields": {
           "previewUrl": true
         }
