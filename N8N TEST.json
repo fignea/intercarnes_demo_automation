@@ -1,0 +1,615 @@
+{
+  "name": "[PRD] - TEST PARA INTERCARNES",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {
+          "messageStatusUpdates": [
+            "delivered"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2200,
+        60
+      ],
+      "id": "87eb62ef-65a7-435a-adf4-b01b05c92a1f",
+      "name": "WhatsApp Trigger",
+      "webhookId": "28509a73-e0a5-4452-b304-c68370caa8d9",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "DOv7R8dhccCnXZhH",
+          "name": "FIGNEA PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.messages[0].type }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1980,
+        -40
+      ],
+      "id": "7ffba0a8-80c6-46e9-b80b-0e61e94ec7f6",
+      "name": "Es audio?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.messages[0].type }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1980,
+        260
+      ],
+      "id": "24307a9d-86a6-4c6d-b035-950fadc294bd",
+      "name": "Es imagen?"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v18.0/{{ $('WhatsApp Trigger').item.json.messages[0].audio.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1760,
+        -40
+      ],
+      "id": "574bcec6-6722-4295-859b-537e69ef8a6e",
+      "name": "Audio Meta",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "OiH3aZrALsnmETZ0",
+          "name": "FIGNEA PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1540,
+        -40
+      ],
+      "id": "d98c5ec3-ddca-4023-a6f2-978c6f8543f3",
+      "name": "Get Audio",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "OiH3aZrALsnmETZ0",
+          "name": "FIGNEA PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/audio/transcriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "audio"
+            },
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "name": "language",
+              "value": "es"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1320,
+        -40
+      ],
+      "id": "e2f379bd-653e-4719-b648-14f56af70a26",
+      "name": "Audio → Texto (Whisper)",
+      "credentials": {
+        "openAiApi": {
+          "id": "Pj6XxVu4vEcr3yvo",
+          "name": "OPENAI PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -1100,
+        -40
+      ],
+      "id": "383be481-bc41-48fa-8c80-814d4fd4aade",
+      "name": "Normalizar (audio)"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v18.0/{{ $('WhatsApp Trigger').item.json.messages[0].image.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1760,
+        260
+      ],
+      "id": "cfc04c7c-6468-4f67-91ce-a0445692500b",
+      "name": "Image Meta",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "OiH3aZrALsnmETZ0",
+          "name": "FIGNEA PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -1540,
+        260
+      ],
+      "id": "53e2576a-be26-48a3-88bb-b1e9262bb9e7",
+      "name": "Normalizar (imagen)"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -1760,
+        -240
+      ],
+      "id": "ac753e9c-9431-474e-a1c3-309253c0f8d8",
+      "name": "Normalizar (texto)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Eres un agente conversacional de Intercarnes por WhatsApp para una DEMO. Siempre respondes en español rioplatense. Tu objetivo es: (1) dar la bienvenida y aclarar que es una demo, (2) pedir y/o confirmar estos datos del producto que la persona quiere vender desde su casa: product (nombre del producto), price (precio en ARS, número), description (características y detalles), y si mandó foto debes tener hasPhoto=true, (3) cuando todavía faltan datos, devuelves readyToCreateOrder=false y en agentReply pides amablemente lo que falta, (4) cuando ya tienes toda la información necesaria, devuelves readyToCreateOrder=true y en agentReply escribes un mensaje de confirmación listo para enviar por WhatsApp (incluyendo producto, precio y características) sin hablar del link, porque el link lo agrega el sistema aparte, (5) siempre recuerdas en agentReply que esto es solo una demo. Tu respuesta SIEMPRE debe ser un JSON con estas claves: agentReply (string), product (string o null), price (number o null), description (string o null), hasPhoto (boolean), readyToCreateOrder (boolean).\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Mensaje del usuario: \" + $json[\"messageText\"] + \"\\n\\nDatos que ya tengo registrados (pueden venir vacíos): hasPhoto=\" + $json[\"hasPhoto\"] + \", photoUrl=\" + $json[\"photoUrl\"]\n    }\n  ]\n}\n}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -840,
+        -40
+      ],
+      "id": "a3d2dd9c-227b-41a1-b8e6-3e578837f635",
+      "name": "Agente OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "Pj6XxVu4vEcr3yvo",
+          "name": "OPENAI PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "JavaScript",
+        "jsCode": "// Soportar distintas formas de respuesta del nodo HTTP de OpenAI\nconst raw = items[0].json;\n\nlet content;\n\n// Caso 1: respuesta como objeto { choices: [...] }\nif (raw.choices && raw.choices[0] && raw.choices[0].message && raw.choices[0].message.content !== undefined) {\n  content = raw.choices[0].message.content;\n}\n// Caso 2: respuesta como array [ { choices: [...] } ]\nelse if (Array.isArray(raw) && raw[0] && raw[0].choices && raw[0].choices[0] && raw[0].choices[0].message && raw[0].choices[0].message.content !== undefined) {\n  content = raw[0].choices[0].message.content;\n}\n// Caso raro: no encontramos el contenido\nelse {\n  return [{\n    json: {\n      agentReply: 'No se encontró contenido en la respuesta del modelo.',\n      product: null,\n      price: null,\n      description: null,\n      hasPhoto: false,\n      readyToCreateOrder: false\n    }\n  }];\n}\n\n// Caso 3: modelos nuevos que devuelven output_json como objeto\nif (typeof content === 'object' && content !== null) {\n  // Por si OpenAI devuelve algo tipo { type: \"output_json\", json: { ... } }\n  if (content.type === 'output_json' && content.json) {\n    return [{ json: content.json }];\n  }\n  // Si ya es un objeto con las claves correctas\n  return [{ json: content }];\n}\n\n// En este punto, content debería ser un string JSON que tenemos que parsear\nlet parsed;\ntry {\n  parsed = JSON.parse(content);\n} catch (e) {\n  // Si falla el parseo (ej. caracteres raros, \\u incompleto), devolvemos algo seguro\n  parsed = {\n    agentReply: String(content),\n    product: null,\n    price: null,\n    description: null,\n    hasPhoto: false,\n    readyToCreateOrder: false\n  };\n}\n\n// Preservar información de foto / flags desde el nodo anterior si existen\nconst prevJson = items[0].pairedItem?.item?.json || {};\n\nif (prevJson.photoUrl && !parsed.photoUrl) {\n  parsed.photoUrl = prevJson.photoUrl;\n}\nif (typeof parsed.hasPhoto === 'undefined' && typeof prevJson.hasPhoto === 'boolean') {\n  parsed.hasPhoto = prevJson.hasPhoto;\n}\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -40
+      ],
+      "id": "6a9b0827-5a2c-4f8b-a28a-3976ac8a90d8",
+      "name": "Parse Agent JSON"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.readyToCreateOrder }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "isEqual",
+                "name": "filter.operator.isEqual"
+              },
+              "id": "5d6f0489-6828-4c25-8bc3-a997f4d2d40b"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -380,
+        -100
+      ],
+      "id": "641c6442-e6e3-4d66-b617-6155ef862a2e",
+      "name": "Tiene todo?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://TU_APP_RUNNER_URL/api/sales-request",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        -40
+      ],
+      "id": "777505f5-2466-4ee6-89e0-6f6a7ee5c1e7",
+      "name": "Crear venta en Node"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "727976767061895",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.agentReply }}",
+        "additionalFields": {
+          "previewUrl": true
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -240
+      ],
+      "id": "ca02327c-37d9-478c-83ce-ced73fb59654",
+      "name": "WA Respuesta (pide más)",
+      "webhookId": "b559732f-464c-49b5-a6fb-64e27373c562",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "OiH3aZrALsnmETZ0",
+          "name": "FIGNEA PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "727976767061895",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.agentReply + '\\n\\nLink público de esta demo: ' + $json.publicUrl }}",
+        "additionalFields": {
+          "previewUrl": true
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        100,
+        -40
+      ],
+      "id": "dafa7de3-5bf4-4a99-a1be-b1e7648ac5f5",
+      "name": "WA Confirmación + Link",
+      "webhookId": "50a8fe1a-9ad2-42ea-b99b-0a4463de2f18",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "OiH3aZrALsnmETZ0",
+          "name": "FIGNEA PRD"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Es audio?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Es imagen?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Normalizar (texto)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es audio?": {
+      "main": [
+        [
+          {
+            "node": "Audio Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Meta": {
+      "main": [
+        [
+          {
+            "node": "Get Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio": {
+      "main": [
+        [
+          {
+            "node": "Audio → Texto (Whisper)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio → Texto (Whisper)": {
+      "main": [
+        [
+          {
+            "node": "Normalizar (audio)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es imagen?": {
+      "main": [
+        [
+          {
+            "node": "Image Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Meta": {
+      "main": [
+        [
+          {
+            "node": "Normalizar (imagen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar (audio)": {
+      "main": [
+        [
+          {
+            "node": "Agente OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar (imagen)": {
+      "main": [
+        [
+          {
+            "node": "Agente OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar (texto)": {
+      "main": [
+        [
+          {
+            "node": "Agente OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Parse Agent JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Agent JSON": {
+      "main": [
+        [
+          {
+            "node": "Tiene todo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tiene todo?": {
+      "main": [
+        [
+          {
+            "node": "Crear venta en Node",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA Respuesta (pide más)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear venta en Node": {
+      "main": [
+        [
+          {
+            "node": "WA Confirmación + Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "0f5ea11a-13ab-4b6e-a91e-997c6f2bb09e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "769c3137762d288309bd65ef8a7bdafb26490c46d73a418ad2dd6301be5441fd"
+  },
+  "id": "I0Iao8JKBtxwfkyZ",
+  "tags": [
+    {
+      "createdAt": "2025-06-14T04:06:46.243Z",
+      "updatedAt": "2025-06-14T04:06:46.243Z",
+      "id": "SokL3w2Si3Ys9ers",
+      "name": "[prod] 🔥"
+    },
+    {
+      "createdAt": "2025-06-14T04:10:03.176Z",
+      "updatedAt": "2025-06-14T04:10:03.176Z",
+      "id": "tUmIErlSfhqcxbWY",
+      "name": "[assistant]"
+    }
+  ]
+}

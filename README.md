@@ -54,7 +54,7 @@ CREATE TABLE orders (
 );
 ```
 
-### 3. Instalación y ejecución
+### 3. Instalación y ejecución (local)
 
 ```bash
 npm install
@@ -64,6 +64,33 @@ npm start     # modo producción
 ```
 
 La app escucha por defecto en `http://localhost:3000`.
+
+### 3.b Docker / AWS App Runner
+
+La app está lista para correrse en contenedor con el `Dockerfile` incluido.
+
+#### Build en Mac M1/M2 (forzar linux/amd64)
+
+```bash
+docker buildx build \
+  --platform=linux/amd64 \
+  -t intercarnes-demo:latest .
+```
+
+#### Probar localmente el contenedor
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e mysql_host="TU_HOST" \
+  -e mysql_user="TU_USER" \
+  -e mysql_password="TU_PASS" \
+  -e mysql_database="TU_DB" \
+  intercarnes-demo:latest
+```
+
+> En App Runner vas a definir estas variables de entorno (`mysql_*`) directamente en la configuración del servicio.
+
+Si App Runner construye la imagen a partir del repositorio, simplemente va a usar el `Dockerfile` (la plataforma por defecto de App Runner ya es Linux amd64).
 
 ### 4. Endpoints de la API
 
