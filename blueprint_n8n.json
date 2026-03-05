@@ -303,7 +303,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const trigger = $items('WhatsApp Trigger1')[0].json;\nconst whisper = items[0].json;\nconst ftpInfo = $items('FTP Audio Upload')[0].json;\nconst rawPath = ftpInfo.path || ftpInfo.remotePath || ftpInfo.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `audio-${Date.now()}.ogg`;\nconst BASE_MEDIA = 'https://srv1596.hstgr.io/intercarnes';\nconst audioUrl = fileName ? `${BASE_MEDIA}/audios/${fileName}` : '';\nreturn [{\n  json: {\n    messageText: whisper.text || whisper.text_original || '',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl: audioUrl || null,\n    photoUrl: null\n  }\n}];"
+        "jsCode": "const trigger = $items('WhatsApp Trigger1')[0].json;\nconst whisper = items[0].json;\nconst ftpInfo = $items('FTP Audio Upload')[0].json;\nconst rawPath = ftpInfo.path || ftpInfo.remotePath || ftpInfo.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `audio-${Date.now()}.ogg`;\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst audioUrl = fileName ? `${BASE_MEDIA}/audios/${fileName}` : '';\nreturn [{\n  json: {\n    messageText: whisper.text || whisper.text_original || '',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl: audioUrl || null,\n    photoUrl: null\n  }\n}];"
       },
       "id": "935c4899-f0e9-494f-b28e-5c90bbba67a0",
       "name": "Normalizar (audio)1",
@@ -339,7 +339,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const trigger = $items('WhatsApp Trigger1')[0].json;\nconst ftpInfo = items[0].json;\nconst rawPath = ftpInfo.path || ftpInfo.remotePath || ftpInfo.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `img-${Date.now()}.jpg`;\nconst BASE_MEDIA = 'https://srv1596.hstgr.io/intercarnes';\nconst photoUrl = fileName ? `${BASE_MEDIA}/imagenes/${fileName}` : '';\nreturn [{\n  json: {\n    messageText: trigger.messages[0].text?.body || 'Te compartí una foto',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: true,\n    hasAudio: false,\n    audioUrl: null,\n    photoUrl: photoUrl || null\n  }\n}];"
+        "jsCode": "const trigger = $items('WhatsApp Trigger1')[0].json;\nconst ftpInfo = items[0].json;\nconst rawPath = ftpInfo.path || ftpInfo.remotePath || ftpInfo.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `img-${Date.now()}.jpg`;\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst photoUrl = fileName ? `${BASE_MEDIA}/imagenes/${fileName}` : '';\nreturn [{\n  json: {\n    messageText: trigger.messages[0].text?.body || 'Te compartí una foto',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: true,\n    hasAudio: false,\n    audioUrl: null,\n    photoUrl: photoUrl || null\n  }\n}];"
       },
       "id": "a313eb83-d4e4-439d-8686-8ed8e92b8237",
       "name": "Normalizar (imagen)1",
