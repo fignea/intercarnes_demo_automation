@@ -6,6 +6,11 @@ function buildIntentionId() {
   return `INT-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 }
 
+function normalizePhone(v) {
+  if (v == null || typeof v !== 'string') return '';
+  return v.replace(/\D/g, '');
+}
+
 router.post('/', async (req, res) => {
   const {
     intentionId,
@@ -17,7 +22,8 @@ router.post('/', async (req, res) => {
     nombre
   } = req.body;
 
-  const id = intentionId || buildIntentionId();
+  const phoneNorm = normalizePhone(telefono);
+  const id = (intentionId ? normalizePhone(String(intentionId)) : null) || phoneNorm || buildIntentionId();
 
   try {
     const [result] = await pool.execute(
@@ -32,7 +38,7 @@ router.post('/', async (req, res) => {
          telefono = VALUES(telefono),
          nombre = VALUES(nombre),
          updated_at = NOW()`,
-      [id, producto || null, cantidad || null, foto_url || null, audio_url || null, telefono || null, nombre || null]
+      [id, producto || null, cantidad || null, foto_url || null, audio_url || null, phoneNorm || telefono || null, nombre || null]
     );
 
     const [rows] = await pool.execute(
@@ -52,14 +58,17 @@ router.post('/', async (req, res) => {
 
 // Intención abierta por teléfono (debe ir antes de /:intentionKey)
 router.get('/open-by-phone/:telefono', async (req, res) => {
-  const { telefono } = req.params;
+  const telefonoNorm = normalizePhone(req.params.telefono || '');
   try {
+    if (!telefonoNorm) {
+      return res.status(404).json({ ok: false, error: 'Sin intención abierta', intention: null });
+    }
     const [rows] = await pool.execute(
       `SELECT * FROM intentions
        WHERE telefono = ? AND converted_to_order_at IS NULL
        ORDER BY updated_at DESC
        LIMIT 1`,
-      [telefono]
+      [telefonoNorm]
     );
     if (!rows.length) {
       return res.status(404).json({ ok: false, error: 'Sin intención abierta', intention: null });

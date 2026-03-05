@@ -124,6 +124,17 @@
     },
     {
       "parameters": {
+        "language": "JavaScript",
+        "jsCode": "// Solo procesar mensajes de tipo texto, audio o imagen; descartar el resto (reacciones, estados, documentos, etc.)\nconst data = items[0].json;\nconst messages = data.messages;\nif (!messages || !messages[0]) return [];\nconst msg = messages[0];\nconst type = msg.type || (msg.text ? 'text' : '');\nconst allowed = ['text', 'audio', 'image'];\nif (!allowed.includes(type)) return [];\nreturn [items[0]];"
+      },
+      "id": "nodo-solo-mensajes",
+      "name": "Solo mensajes (texto/audio/imagen)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ -1220, 660 ]
+    },
+    {
+      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": false,
@@ -352,12 +363,12 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\n\nlet hasOpenIntention = false;\nlet intention = null;\n\ntry {\n  const res = await fetch(`${BASE_URL}/api/intentions/open-by-phone/${encodeURIComponent(telefono)}`);\n  const data = await res.json();\n\n  if (data.ok && data.intention) {\n    hasOpenIntention = true;\n    intention = data.intention;\n  }\n} catch (e) {\n  // Error silencioso según tu código original\n}\n\nreturn [{\n  json: {\n    ...item,\n    hasOpenIntention,\n    intention\n  }\n}];"
+        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = items[0].json;\nconst rawPhone = String(item.telefono || '');\nconst telefono = rawPhone.replace(/\\D/g, '');\n\nlet hasOpenIntention = false;\nlet intention = null;\n\ntry {\n  const res = await fetch(`${BASE_URL}/api/intentions/open-by-phone/${encodeURIComponent(telefono)}`);\n  const data = await res.json();\n\n  if (data.ok && data.intention) {\n    hasOpenIntention = true;\n    intention = data.intention;\n  }\n} catch (e) {\n  // Error silencioso\n}\n\nreturn [{\n  json: {\n    ...item,\n    telefono,\n    hasOpenIntention,\n    intention\n  }\n}];"
       },
       "id": "nodo-cargar-intencion",
       "name": "Cargar intención abierta",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "typeVersion": 1,
       "position": [ -100, 500 ]
     },
     {
@@ -384,12 +395,12 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = $input.item.json;\nconst telefono = item.telefono || '';\nconst greeting = '¡Hola! Bienvenido a la demo de Intercarnes. Contame qué producto te interesa y en qué cantidad. Recordá que es solo una demo.';\ntry {\n  await fetch(`${BASE_URL}/api/intentions`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ intentionId: telefono, telefono })\n  });\n} catch (e) {}\nreturn [{ json: { ...item, agentReply: greeting } }];"
+        "jsCode": "const BASE_URL = 'https://hpkd28enkm.us-east-1.awsapprunner.com';\nconst item = items[0].json;\nconst rawPhone = String(item.telefono || '');\nconst telefono = rawPhone.replace(/\\D/g, '');\nconst greeting = '¡Hola! Bienvenido a la demo de Intercarnes. Contame qué producto te interesa y en qué cantidad. Recordá que es solo una demo.';\ntry {\n  await fetch(`${BASE_URL}/api/intentions`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ intentionId: telefono, telefono })\n  });\n} catch (e) {}\nreturn [{ json: { ...item, telefono, agentReply: greeting } }];"
       },
       "id": "nodo-crear-intencion-saludo",
       "name": "Crear intención y saludo",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "typeVersion": 1,
       "position": [ 320, 640 ]
     },
     {
@@ -410,12 +421,12 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const item = $input.item.json;\nconst intention = item.intention || {};\nreturn [{ json: {\n  ...item,\n  productoActual: intention.producto || '',\n  cantidadActual: intention.cantidad != null ? String(intention.cantidad) : '',\n  nombreActual: intention.nombre || '',\n  photoUrl: item.photoUrl || intention.foto_url || null,\n  audioUrl: item.audioUrl || intention.audio_url || null\n} }];"
+        "jsCode": "const item = items[0].json;\nconst intention = item.intention || {};\nreturn [{ json: {\n  ...item,\n  productoActual: intention.producto || '',\n  cantidadActual: intention.cantidad != null ? String(intention.cantidad) : '',\n  nombreActual: intention.nombre || '',\n  photoUrl: item.photoUrl || intention.foto_url || null,\n  audioUrl: item.audioUrl || intention.audio_url || null\n} }];"
       },
       "id": "nodo-preparar-contexto",
       "name": "Preparar contexto agente",
       "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "typeVersion": 1,
       "position": [ 320, 400 ]
     },
     {
@@ -612,6 +623,17 @@
       ]
     },
     "WhatsApp Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Solo mensajes (texto/audio/imagen)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Solo mensajes (texto/audio/imagen)": {
       "main": [
         [
           {
