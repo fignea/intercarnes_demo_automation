@@ -5,15 +5,15 @@
       "parameters": {
         "operation": "upload",
         "path": "=/audios/{{$now}}-{{ $('Get Audio1').item.json.id }}.ogg",
-        "binaryPropertyName": "audio"
+        "binaryPropertyName": "=audio"
       },
       "id": "0326b996-0077-4765-8ca7-ff7e0a8f154c",
       "name": "FTP Audio Upload",
       "type": "n8n-nodes-base.ftp",
       "typeVersion": 1,
       "position": [
-        -3660,
-        0
+        -3780,
+        -60
       ],
       "credentials": {
         "ftp": {
@@ -290,7 +290,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -3800,
+        -3760,
         100
       ],
       "credentials": {
@@ -303,7 +303,7 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "const trigger = $items('WhatsApp Trigger1')[0].json;\nconst whisper = items[0].json;\nconst ftpInfo = $items('FTP Audio Upload')[0].json;\nconst rawPath = ftpInfo.path || ftpInfo.remotePath || ftpInfo.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `audio-${Date.now()}.ogg`;\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst audioUrl = fileName ? `${BASE_MEDIA}/audios/${fileName}` : '';\nreturn [{\n  json: {\n    messageText: whisper.text || whisper.text_original || '',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl: audioUrl || null,\n    photoUrl: null\n  }\n}];"
+        "jsCode": "// Entrada: Merge con Input1 = FTP Audio Upload, Input2 = Whisper. Trigger por referencia.\nconst trigger = $items('WhatsApp Trigger1')[0].json;\nconst merged = items;\nconst hasTwoItems = merged.length >= 2;\nconst ftpData = merged[0].json;\nconst whisperData = hasTwoItems ? merged[1].json : merged[0].json;\nconst rawPath = ftpData.path || ftpData.remotePath || ftpData.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `audio-${Date.now()}.ogg`;\nconst messageText = whisperData.text || whisperData.text_original || '';\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst audioUrl = fileName ? `${BASE_MEDIA}/audios/${fileName}` : null;\nreturn [{\n  json: {\n    messageText,\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl,\n    photoUrl: null\n  }\n}];"
       },
       "id": "0ec904c0-dd74-44e9-9353-7f65f4d181fc",
       "name": "Normalizar (audio)1",
@@ -677,15 +677,62 @@
       ],
       "id": "ca70f914-38aa-4271-875a-5941a23993d2",
       "name": "Tiene todo?1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -3580,
+        40
+      ],
+      "id": "25afe3fd-5678-4994-ab70-b50be1c66cf2",
+      "name": "Merge"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "WhatsApp Trigger1": [
+      {
+        "json": {
+          "messaging_product": "whatsapp",
+          "metadata": {
+            "display_phone_number": "5491128359993",
+            "phone_number_id": "727976767061895"
+          },
+          "contacts": [
+            {
+              "profile": {
+                "name": "Lucas"
+              },
+              "wa_id": "5491124557946"
+            }
+          ],
+          "messages": [
+            {
+              "from": "5491124557946",
+              "id": "wamid.HBgNNTQ5MTEyNDU1Nzk0NhUCABIYFDNBNUQ3MjUwRjJEODAyNzgyNkY3AA==",
+              "timestamp": "1772678960",
+              "type": "audio",
+              "audio": {
+                "mime_type": "audio/ogg; codecs=opus",
+                "sha256": "2VnvFuCALTSVcoKcWPJ7lvrDNtExCk1+T45LrDua2WM=",
+                "id": "1198017345502144",
+                "url": "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1198017345502144&source=webhook&ext=1772679262&hash=ARn0jlz1i_-7IYMW292SG4tMMPDGpD4smI8gPBsq32RJZw",
+                "voice": true
+              }
+            }
+          ],
+          "field": "messages"
+        }
+      }
+    ]
+  },
   "connections": {
     "FTP Audio Upload": {
       "main": [
         [
           {
-            "node": "Normalizar (audio)1",
+            "node": "Merge",
             "type": "main",
             "index": 0
           }
@@ -748,11 +795,6 @@
             "node": "Es imagen?1",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Normalizar (texto)1",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -762,6 +804,13 @@
         [
           {
             "node": "Audio Meta1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalizar (texto)1",
             "type": "main",
             "index": 0
           }
@@ -794,12 +843,12 @@
       "main": [
         [
           {
-            "node": "FTP Audio Upload",
+            "node": "Audio → Texto (Whisper)1",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Audio → Texto (Whisper)1",
+            "node": "FTP Audio Upload",
             "type": "main",
             "index": 0
           }
@@ -810,9 +859,9 @@
       "main": [
         [
           {
-            "node": "Normalizar (audio)1",
+            "node": "Merge",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -995,15 +1044,26 @@
           }
         ]
       ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Normalizar (audio)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "timezone": "America/Argentina/Buenos_Aires",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "9f6e0081-9f99-44ff-88bb-3c7f91784176",
+  "versionId": "f0ffe584-094a-49c1-8724-4a24f31b1df1",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "769c3137762d288309bd65ef8a7bdafb26490c46d73a418ad2dd6301be5441fd"
