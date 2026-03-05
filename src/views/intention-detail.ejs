@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Intención <%= intention.intention_key %> - Demo Intercarnes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #020617;
+        color: #e5e7eb;
+      }
+      header {
+        padding: 1.5rem 2rem;
+        background: radial-gradient(circle at top left, #f59e0b, #020617);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      h1 { margin: 0; font-size: 1.6rem; }
+      main {
+        max-width: 960px;
+        margin: 2rem auto;
+        padding: 0 1rem 2rem;
+      }
+      .card {
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        color: #9ca3af;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(245, 158, 11, 0.5);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #fcd34d;
+      }
+      .badge.closed {
+        border-color: rgba(107, 114, 128, 0.5);
+        color: #9ca3af;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
+        gap: 0.5rem 1rem;
+        margin: 1.5rem 0 0;
+        font-size: 0.9rem;
+      }
+      dt { font-weight: 600; color: #9ca3af; }
+      dd { margin: 0; }
+      a {
+        color: #f59e0b;
+        text-decoration: none;
+      }
+      a:hover { text-decoration: underline; }
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+      }
+      .media-card {
+        background: rgba(15, 23, 42, 0.9);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+      }
+      img {
+        max-width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+      }
+      audio { width: 100%; margin-top: 0.75rem; }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        color: #9ca3af;
+      }
+      footer { text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #6b7280; }
+      @media (max-width: 640px) { dl { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Intención: <%= intention.intention_key %></h1>
+      <p style="margin: 0.35rem 0 0; font-size: 0.9rem; color: #e5e7eb">
+        Detalle de la intención de compra.
+      </p>
+    </header>
+    <main>
+      <a href="/intentions" class="back-link">
+        <span>←</span>
+        <span>Volver al listado</span>
+      </a>
+
+      <section class="card">
+        <div style="display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start;">
+          <div>
+            <% if (intention.converted_to_order_at) { %>
+            <span class="badge closed">Convertida en orden</span>
+            <% } else { %>
+            <span class="badge">Abierta</span>
+            <% } %>
+            <h2 style="margin: 0.75rem 0 0.25rem; font-size: 1.25rem">
+              <%= intention.producto || 'Sin producto definido' %>
+            </h2>
+            <p style="margin: 0; font-size: 0.9rem; color: #9ca3af">
+              Clave: <code style="padding: 0.15rem 0.35rem; border-radius: 0.4rem; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(55, 65, 81, 0.9); font-size: 0.75rem;"><%= intention.intention_key %></code>
+            </p>
+          </div>
+          <div class="meta">
+            <div>
+              Creada:<br />
+              <strong><%= intention.created_at ? new Date(intention.created_at).toLocaleString('es-AR') : '-' %></strong>
+            </div>
+            <div>
+              Actualizada:<br />
+              <strong><%= intention.updated_at ? new Date(intention.updated_at).toLocaleString('es-AR') : '-' %></strong>
+            </div>
+            <% if (intention.converted_to_order_at) { %>
+            <div>
+              Convertida:<br />
+              <strong><%= new Date(intention.converted_to_order_at).toLocaleString('es-AR') %></strong>
+            </div>
+            <% } %>
+          </div>
+        </div>
+
+        <dl>
+          <dt>Producto</dt>
+          <dd><%= intention.producto || '-' %></dd>
+          <dt>Cantidad</dt>
+          <dd><%= intention.cantidad != null ? intention.cantidad : '-' %></dd>
+          <dt>Nombre</dt>
+          <dd><%= intention.nombre || '-' %></dd>
+          <dt>Teléfono</dt>
+          <dd><%= intention.telefono || '-' %></dd>
+        </dl>
+
+        <div class="media-grid">
+          <div class="media-card">
+            <h3 style="margin: 0 0 0.5rem; font-size: 0.95rem">Foto del producto</h3>
+            <% if (intention.foto_url) { %>
+            <p style="margin: 0 0 0.5rem; font-size: 0.8rem; color: #9ca3af">
+              <a href="<%= intention.foto_url %>" target="_blank" rel="noreferrer">Abrir imagen</a>
+            </p>
+            <img src="<%= intention.foto_url %>" alt="Foto del producto" />
+            <% } else { %>
+            <p style="margin: 0; font-size: 0.85rem; color: #6b7280">Sin imagen.</p>
+            <% } %>
+          </div>
+          <div class="media-card">
+            <h3 style="margin: 0 0 0.5rem; font-size: 0.95rem">Audio</h3>
+            <% if (intention.audio_url) { %>
+            <p style="margin: 0 0 0.5rem; font-size: 0.8rem; color: #9ca3af">
+              <a href="<%= intention.audio_url %>" target="_blank" rel="noreferrer">Abrir audio</a>
+            </p>
+            <audio controls>
+              <source src="<%= intention.audio_url %>" />
+            </audio>
+            <% } else { %>
+            <p style="margin: 0; font-size: 0.85rem; color: #6b7280">Sin audio.</p>
+            <% } %>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        Demo Intercarnes · <a href="/orders">Ver órdenes</a>
+      </footer>
+    </main>
+  </body>
+</html>

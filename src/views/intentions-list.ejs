@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>Órdenes - Demo Intercarnes</title>
+    <title>Intenciones - Demo Intercarnes</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body {
@@ -15,13 +15,10 @@
       }
       header {
         padding: 1.5rem 2rem;
-        background: radial-gradient(circle at top left, #22c55e, #0f172a);
+        background: radial-gradient(circle at top left, #f59e0b, #0f172a);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       }
-      h1 {
-        margin: 0;
-        font-size: 1.75rem;
-      }
+      h1 { margin: 0; font-size: 1.75rem; }
       main {
         max-width: 960px;
         margin: 2rem auto;
@@ -39,8 +36,7 @@
         border-collapse: collapse;
         margin-top: 1rem;
       }
-      th,
-      td {
+      th, td {
         padding: 0.75rem 0.5rem;
         text-align: left;
         border-bottom: 1px solid rgba(51, 65, 85, 0.8);
@@ -52,27 +48,31 @@
         font-size: 0.75rem;
         color: #9ca3af;
       }
-      tr:hover td {
-        background: rgba(31, 41, 55, 0.7);
-      }
+      tr:hover td { background: rgba(31, 41, 55, 0.7); }
       a {
-        color: #22c55e;
+        color: #f59e0b;
         text-decoration: none;
         font-weight: 500;
       }
-      a:hover {
-        text-decoration: underline;
+      a:hover { text-decoration: underline; }
+      .nav-link {
+        color: #94a3b8;
+        font-size: 0.9rem;
       }
       .tag {
         display: inline-flex;
         align-items: center;
         padding: 0.15rem 0.5rem;
         border-radius: 999px;
-        background: rgba(34, 197, 94, 0.12);
-        color: #bbf7d0;
+        background: rgba(245, 158, 11, 0.15);
+        color: #fcd34d;
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+      }
+      .tag.closed {
+        background: rgba(107, 114, 128, 0.3);
+        color: #9ca3af;
       }
       .empty-state {
         margin-top: 1rem;
@@ -89,72 +89,62 @@
   </head>
   <body>
     <header>
-      <h1>Órdenes de compra - Demo</h1>
+      <h1>Intenciones - Demo</h1>
       <p style="margin: 0.25rem 0 0; color: #e5e7eb; font-size: 0.9rem">
-        Visualización pública de órdenes generadas vía API.
+        Intenciones de compra creadas desde WhatsApp / API.
       </p>
       <p style="margin: 0.5rem 0 0;">
-        <a href="/intentions" style="color: #94a3b8; font-size: 0.9rem;">Intenciones →</a>
+        <a href="/orders" class="nav-link">← Órdenes</a>
       </p>
     </header>
     <main>
       <section class="card">
         <div style="display: flex; justify-content: space-between; gap: 1rem">
           <div>
-            <h2 style="margin: 0; font-size: 1.1rem">Listado de órdenes</h2>
+            <h2 style="margin: 0; font-size: 1.1rem">Listado de intenciones</h2>
             <p style="margin: 0.25rem 0 0; font-size: 0.85rem; color: #9ca3af">
-              Las órdenes se crean y confirman únicamente por API. Esta vista es
-              solo para consulta.
+              Cada intención puede convertirse en una orden. Solo lectura.
             </p>
           </div>
           <div style="text-align: right">
-            <span class="tag">API Driven</span>
+            <span class="tag">API / WhatsApp</span>
           </div>
         </div>
 
-        <% if (orders && orders.length) { %>
+        <% if (intentions && intentions.length) { %>
         <table>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Intención</th>
+              <th>Clave</th>
               <th>Producto</th>
               <th>Cantidad</th>
-              <th>Fecha</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Actualizada</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <% orders.forEach(o => { %>
+            <% intentions.forEach(i => { %>
             <tr>
-              <td>#<%= o.id %></td>
+              <td>#<%= i.id %></td>
               <td>
-                <% if (o.intention_key) { %>
-                <code
-                  style="
-                    padding: 0.15rem 0.35rem;
-                    border-radius: 0.4rem;
-                    background: rgba(15, 23, 42, 0.9);
-                    border: 1px solid rgba(55, 65, 81, 0.9);
-                    font-size: 0.7rem;
-                  "
-                  ><%= o.intention_key %></code
-                >
+                <code style="padding: 0.15rem 0.35rem; border-radius: 0.4rem; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(55, 65, 81, 0.9); font-size: 0.7rem;"><%= i.intention_key %></code>
+              </td>
+              <td><%= i.producto || '-' %></td>
+              <td><%= i.cantidad != null ? i.cantidad : '-' %></td>
+              <td><%= i.telefono || '-' %></td>
+              <td>
+                <% if (i.converted_to_order_at) { %>
+                <span class="tag closed">Convertida</span>
                 <% } else { %>
-                <span style="color: #6b7280; font-size: 0.8rem"
-                  >sin intención</span
-                >
+                <span class="tag">Abierta</span>
                 <% } %>
               </td>
-              <td><%= o.producto || '-' %></td>
-              <td><%= o.cantidad || '-' %></td>
+              <td><%= i.updated_at ? new Date(i.updated_at).toLocaleString('es-AR') : '-' %></td>
               <td>
-                <%= o.created_at
-                  ? new Date(o.created_at).toLocaleString('es-AR')
-                  : '-' %>
-              </td>
-              <td>
-                <a href="/orders/<%= o.id %>">Ver detalle</a>
+                <a href="/intentions/<%= encodeURIComponent(i.intention_key) %>">Ver detalle</a>
               </td>
             </tr>
             <% }); %>
@@ -162,16 +152,14 @@
         </table>
         <% } else { %>
         <p class="empty-state">
-          Aún no hay órdenes creadas. Usá la API para generar una intención y
-          luego confirmar la orden.
+          Aún no hay intenciones. Se crean desde WhatsApp o vía API.
         </p>
         <% } %>
       </section>
 
       <footer>
-        Demo Intercarnes · <a href="/intentions" style="color: #6b7280;">Ver intenciones</a>
+        Demo Intercarnes · <a href="/orders" class="nav-link">Ver órdenes</a>
       </footer>
     </main>
   </body>
-  </html>
-
+</html>

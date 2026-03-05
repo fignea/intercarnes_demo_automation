@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../db');
 const router = express.Router();
+const viewRouter = express.Router({ mergeParams: true });
 
 function buildIntentionId() {
   return `INT-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -56,6 +57,19 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Listar todas las intenciones (debe ir antes de /:intentionKey)
+router.get('/', async (_req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT id, intention_key, producto, cantidad, telefono, nombre, converted_to_order_at, created_at, updated_at FROM intentions ORDER BY updated_at DESC'
+    );
+    res.json({ ok: true, intentions: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: 'Error al listar las intenciones' });
+  }
+});
+
 // Intención abierta por teléfono (debe ir antes de /:intentionKey)
 router.get('/open-by-phone/:telefono', async (req, res) => {
   const telefonoNorm = normalizePhone(req.params.telefono || '');
@@ -99,5 +113,35 @@ router.get('/:intentionKey', async (req, res) => {
   }
 });
 
-module.exports = router;
+// --- Vistas (front) ---
+viewRouter.get('/', async (_req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT id, intention_key, producto, cantidad, telefono, nombre, converted_to_order_at, created_at, updated_at FROM intentions ORDER BY updated_at DESC'
+    );
+    res.render('intentions-list', { intentions: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al cargar las intenciones');
+  }
+});
+
+viewRouter.get('/:key', async (req, res) => {
+  const key = req.params.key;
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM intentions WHERE intention_key = ?',
+      [key]
+    );
+    if (!rows.length) {
+      return res.status(404).send('Intención no encontrada');
+    }
+    res.render('intention-detail', { intention: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al cargar la intención');
+  }
+});
+
+module.exports = { router, viewRouter };
 
