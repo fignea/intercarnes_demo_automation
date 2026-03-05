@@ -3,16 +3,16 @@
     {
       "parameters": {
         "operation": "upload",
-        "path": "=/audios/{{$now}}-{{ $('Get Audio1').item.json.id }}.ogg",
+        "path": "=/audios/{{ $('WhatsApp Trigger1').item.json.messages[0].audio.id }}.ogg",
         "binaryPropertyName": "=audio"
       },
-      "id": "69c28419-ee1d-43b8-9849-2d3202d505e7",
+      "id": "88412c88-3e27-49b0-83bc-4c1bbe9c1e0d",
       "name": "FTP Audio Upload",
       "type": "n8n-nodes-base.ftp",
       "typeVersion": 1,
       "position": [
-        80,
-        -140
+        -520,
+        -240
       ],
       "credentials": {
         "ftp": {
@@ -35,13 +35,13 @@
           }
         }
       },
-      "id": "87c6d4b8-cafc-4348-807c-37407fb6a2a4",
+      "id": "821fb071-14fc-4557-bce2-0e555c648869",
       "name": "Get Image",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        80,
-        435
+        -520,
+        335
       ],
       "credentials": {
         "whatsAppApi": {
@@ -56,13 +56,13 @@
         "path": "=/imagenes/{{ $('WhatsApp Trigger1').item.json.messages[0].image.id }}.jpg",
         "binaryPropertyName": "image"
       },
-      "id": "a7ea72eb-4a49-4119-95f2-36b6585376bd",
+      "id": "7333994d-885c-4680-9234-fa847eb666b0",
       "name": "FTP Image Upload",
       "type": "n8n-nodes-base.ftp",
       "typeVersion": 1,
       "position": [
-        300,
-        435
+        -300,
+        335
       ],
       "credentials": {
         "ftp": {
@@ -86,13 +86,13 @@
           }
         }
       },
-      "id": "09174dd3-000b-47dd-97b1-4b7a858f9ec1",
+      "id": "ab62ecfb-3591-4fae-98bc-7210376a932e",
       "name": "Crear orden en Node",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2500,
-        -40
+        1900,
+        -140
       ]
     },
     {
@@ -106,13 +106,13 @@
           ]
         }
       },
-      "id": "a88d61f1-7c3b-4130-90bf-ab4d3520fb6a",
+      "id": "6e214ccc-2303-4290-acd4-a7708e9680fc",
       "name": "WhatsApp Trigger1",
       "type": "n8n-nodes-base.whatsAppTrigger",
       "typeVersion": 1,
       "position": [
-        -1020,
-        160
+        -1620,
+        60
       ],
       "webhookId": "3d5f4f2c-4799-4b38-aab7-62b50bdd58c6",
       "credentials": {
@@ -127,13 +127,13 @@
         "language": "JavaScript",
         "jsCode": "// Un solo ítem por ejecución para evitar repeticiones; solo texto, audio o imagen\nconst item = items[0];\nconst data = item.json;\nconst messages = data.messages;\nif (!messages || !messages[0]) return [];\nconst msg = messages[0];\nconst type = msg.type || (msg.text ? 'text' : '');\nconst allowed = ['text', 'audio', 'image'];\nif (!allowed.includes(type)) return [];\nreturn [item];"
       },
-      "id": "8b23c632-3c53-4050-b2a2-57012e344f3c",
+      "id": "a314e6ca-16fe-4285-a023-0204b65b743b",
       "name": "Solo mensajes (texto/audio/imagen)",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        -800,
-        160
+        -1400,
+        60
       ]
     },
     {
@@ -162,13 +162,13 @@
           "ignoreCase": true
         }
       },
-      "id": "e39516c4-bc2b-46d8-aa80-c46997cb99a1",
+      "id": "d8578776-0cda-4881-99b8-80b93add3841",
       "name": "Es audio?1",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -580,
-        160
+        -1180,
+        60
       ]
     },
     {
@@ -197,13 +197,13 @@
           "ignoreCase": true
         }
       },
-      "id": "07326d12-31c8-4a3c-95b6-06bb4e791b1f",
+      "id": "44187a89-d4a3-48b9-8f77-a120737a8322",
       "name": "Es imagen?1",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -360,
-        335
+        -960,
+        235
       ]
     },
     {
@@ -213,13 +213,13 @@
         "nodeCredentialType": "whatsAppApi",
         "options": {}
       },
-      "id": "90692570-186e-45f1-a325-30494b08600a",
+      "id": "89a88359-8f07-4557-9ca5-390462c416e7",
       "name": "Audio Meta1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -360,
-        -40
+        -960,
+        -140
       ],
       "credentials": {
         "whatsAppApi": {
@@ -242,13 +242,13 @@
           }
         }
       },
-      "id": "4e8537f8-30e8-4467-95a9-cabf04ae1cc4",
+      "id": "87856e19-6eca-4d8c-ad4d-2c2b745e39e9",
       "name": "Get Audio1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -140,
-        -40
+        -740,
+        -140
       ],
       "credentials": {
         "whatsAppApi": {
@@ -284,13 +284,13 @@
         },
         "options": {}
       },
-      "id": "c3dd0e46-6db5-402b-ad2c-94be5ec7f06d",
+      "id": "0f87c1ae-98a3-453f-8798-4035c48f0459",
       "name": "Audio → Texto (Whisper)1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        80,
-        60
+        -520,
+        -40
       ],
       "credentials": {
         "openAiApi": {
@@ -302,15 +302,15 @@
     {
       "parameters": {
         "language": "JavaScript",
-        "jsCode": "// Entrada: Merge con Input1 = FTP Audio Upload, Input2 = Whisper. Trigger por referencia.\nconst trigger = $items('WhatsApp Trigger1')[0].json;\nconst merged = items;\nconst hasTwoItems = merged.length >= 2;\nconst ftpData = merged[0].json;\nconst whisperData = hasTwoItems ? merged[1].json : merged[0].json;\nconst rawPath = ftpData.path || ftpData.remotePath || ftpData.fileName || '';\nconst fileName = rawPath.split('/').pop() || rawPath || `audio-${Date.now()}.ogg`;\nconst messageText = whisperData.text || whisperData.text_original || '';\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst audioUrl = fileName ? `${BASE_MEDIA}/audios/${fileName}` : null;\nreturn [{\n  json: {\n    messageText,\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl,\n    photoUrl: null\n  }\n}];"
+        "jsCode": "// Mismo ID que en FTP Audio Upload: id del audio de WhatsApp.\nconst trigger = $items('WhatsApp Trigger1')[0].json;\nconst merged = items;\nconst hasTwoItems = merged.length >= 2;\nconst whisperData = hasTwoItems ? merged[1].json : merged[0].json;\nconst messageText = whisperData.text || whisperData.text_original || '';\nconst audioId = trigger.messages?.[0]?.audio?.id || null;\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst audioUrl = audioId ? `${BASE_MEDIA}/audios/${audioId}.ogg` : null;\nreturn [{\n  json: {\n    messageText,\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: true,\n    audioUrl,\n    photoUrl: null\n  }\n}];"
       },
-      "id": "5659b32e-1cb3-4623-a8dc-de740b46a30c",
+      "id": "cc6d619d-5cc6-463d-a904-5c07a6a9090d",
       "name": "Normalizar (audio)1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        520,
-        -40
+        -80,
+        -140
       ]
     },
     {
@@ -320,13 +320,13 @@
         "nodeCredentialType": "whatsAppApi",
         "options": {}
       },
-      "id": "59e6bec0-2efa-4fdc-9faf-85c4b4eecadf",
+      "id": "e74ba02f-82c7-4f85-99da-1f015fd40ac3",
       "name": "Image Meta1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -140,
-        435
+        -740,
+        335
       ],
       "credentials": {
         "whatsAppApi": {
@@ -340,13 +340,13 @@
         "language": "JavaScript",
         "jsCode": "// Mismo ID que en FTP Image Upload: id de la imagen de WhatsApp\nconst trigger = $items('WhatsApp Trigger1')[0].json;\nconst imageId = trigger.messages?.[0]?.image?.id || null;\nconst BASE_MEDIA = 'https://camguard.com.ar/intercarnes';\nconst photoUrl = imageId ? `${BASE_MEDIA}/imagenes/${imageId}.jpg` : '';\nreturn [{\n  json: {\n    messageText: trigger.messages[0].text?.body || 'Te compartí una foto',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: true,\n    hasAudio: false,\n    audioUrl: null,\n    photoUrl: photoUrl || null\n  }\n}];"
       },
-      "id": "5eefe5ac-fdb9-4ddd-84ea-d432ce6458ff",
+      "id": "fb292399-7031-4fc9-b587-a46a299ad318",
       "name": "Normalizar (imagen)1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        520,
-        435
+        -80,
+        335
       ]
     },
     {
@@ -354,13 +354,13 @@
         "language": "JavaScript",
         "jsCode": "const trigger = items[0].json;\n\nreturn [{\n  json: {\n    messageText: trigger.messages[0].text?.body || '',\n    telefono: trigger.messages[0].from,\n    producto: null,\n    cantidad: null,\n    nombre: null,\n    hasPhoto: false,\n    hasAudio: false,\n    audioUrl: null,\n    photoUrl: null\n  }\n}];"
       },
-      "id": "cd107cb3-3886-4947-a81c-f339611e5355",
+      "id": "5c9546bf-e711-4453-8617-867bb050dc9a",
       "name": "Normalizar (texto)1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        520,
-        235
+        -80,
+        135
       ]
     },
     {
@@ -368,13 +368,13 @@
         "language": "JavaScript",
         "jsCode": "const item = items[0].json;\nconst rawPhone = String(item.telefono || '');\nconst telefono = rawPhone.replace(/\\D/g, '');\nreturn [{ json: { ...item, telefono } }];"
       },
-      "id": "ad094868-2fca-4676-9b10-dad958e024bd",
+      "id": "5715c653-beb7-4eb4-86a0-33e3a3c1ab43",
       "name": "Normalizar teléfono",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        740,
-        235
+        140,
+        135
       ]
     },
     {
@@ -389,13 +389,13 @@
           }
         }
       },
-      "id": "a6888fba-1357-483d-b4c9-1fc864f2db65",
+      "id": "a9071bf5-b7bb-4a4f-a494-6c2084063243",
       "name": "GET intención abierta",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        960,
-        235
+        360,
+        135
       ]
     },
     {
@@ -403,13 +403,13 @@
         "language": "JavaScript",
         "jsCode": "const prev = $('Normalizar teléfono').first().json;\nconst res = items[0].json;\nconst hasOpenIntention = !!(res && res.ok && res.intention);\nconst intention = (res && res.intention) || null;\nreturn [{ json: { ...prev, hasOpenIntention, intention } }];"
       },
-      "id": "2816b85a-45c9-4be7-8fa3-55e58b5a9b13",
+      "id": "8a3ca1e4-509e-4d1e-bf6d-dc53b1e1271c",
       "name": "Cargar intención abierta",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        1180,
-        235
+        580,
+        135
       ]
     },
     {
@@ -418,16 +418,16 @@
         "url": "https://hpkd28enkm.us-east-1.awsapprunner.com/api/intentions",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { intentionId: $json.telefono, telefono: $json.telefono } }}",
+        "jsonBody": "={{ { intentionId: $json.telefono + '-' + Date.now(), telefono: $json.telefono } }}",
         "options": {}
       },
-      "id": "2608eed7-d778-4dde-a096-72efaf1611c9",
+      "id": "c72d50f9-78b5-4ea1-83a0-6ec303ff285e",
       "name": "Crear intención (API)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1620,
-        335
+        1020,
+        235
       ]
     },
     {
@@ -444,13 +444,13 @@
         },
         "options": {}
       },
-      "id": "e83cd176-eb78-409b-89f8-6fcf5c3e57c6",
+      "id": "9aeb071a-1c43-46b0-a911-974cb653024d",
       "name": "Agregar saludo",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1840,
-        335
+        1240,
+        235
       ]
     },
     {
@@ -463,13 +463,13 @@
           "previewUrl": true
         }
       },
-      "id": "444e1221-045b-407e-bc48-1df277f41f57",
+      "id": "7021a9b1-0d4c-408a-a9a8-1f13d8a31880",
       "name": "WA Saludo inicial",
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        2060,
-        335
+        1460,
+        235
       ],
       "webhookId": "13931bef-419e-4381-b5b9-4126678eec61",
       "credentials": {
@@ -484,13 +484,13 @@
         "language": "JavaScript",
         "jsCode": "const item = items[0].json;\nconst intention = item.intention || {};\nreturn [{ json: {\n  ...item,\n  productoActual: intention.producto || '',\n  cantidadActual: intention.cantidad != null ? String(intention.cantidad) : '',\n  nombreActual: intention.nombre || '',\n  photoUrl: item.photoUrl || intention.foto_url || null,\n  audioUrl: item.audioUrl || intention.audio_url || null\n} }];"
       },
-      "id": "9221f341-fb1d-4fdd-aef1-559bc4f3c9bc",
+      "id": "c6d3c535-bc2a-4b30-88ca-9b8a5f060f99",
       "name": "Preparar contexto agente",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        1620,
-        135
+        1020,
+        35
       ]
     },
     {
@@ -502,13 +502,13 @@
         "jsonBody": "={{ {\n  intentionId: $json.intention?.intention_key || $json.telefono,\n  telefono: $json.telefono,\n  producto: $json.producto || $json.intention?.producto || '',\n  cantidad: $json.cantidad ?? $json.intention?.cantidad,\n  nombre: $json.nombre || $json.intention?.nombre || '',\n  foto_url: $json.photoUrl || $json.intention?.foto_url || '',\n  audio_url: $json.audioUrl || $json.intention?.audio_url || ''\n} }}",
         "options": {}
       },
-      "id": "55b620b7-ecff-482c-87c8-943b224469ba",
+      "id": "1315785e-918d-4e37-8637-2325d95b04fb",
       "name": "Actualizar intención",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2500,
-        160
+        1900,
+        60
       ]
     },
     {
@@ -528,13 +528,13 @@
           }
         }
       },
-      "id": "e2ecd552-fc36-4b38-847c-8fc241e3d228",
+      "id": "3c47d242-e308-4d5b-9ba3-07d978f37e22",
       "name": "Agente OpenAI1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1840,
-        135
+        1240,
+        35
       ],
       "credentials": {
         "openAiApi": {
@@ -548,32 +548,32 @@
         "language": "JavaScript",
         "jsCode": "const raw = items[0].json;\nconst completion = Array.isArray(raw) ? raw[0] : raw;\nconst content = completion?.choices?.[0]?.message?.content;\nif (!content) {\n  return [{ json: { agentReply: 'No se encontró contenido.', producto: null, cantidad: null, nombre: null, hasPhoto: false, hasAudio: false, readyToCreateOrder: false } }];\n}\nlet parsed;\ntry { parsed = JSON.parse(content); } catch (e) {\n  parsed = { agentReply: String(content), producto: null, cantidad: null, nombre: null, hasPhoto: false, hasAudio: false, readyToCreateOrder: false };\n}\nconst ctx = $items('Preparar contexto agente')[0]?.json || {};\nparsed.intention = ctx.intention || null;\nparsed.telefono = ctx.telefono || null;\nparsed.photoUrl = ctx.photoUrl || null;\nparsed.audioUrl = ctx.audioUrl || null;\nreturn [{ json: parsed }];"
       },
-      "id": "a4ba2720-bf54-4534-86cb-770a3efa7cd0",
+      "id": "ba28f816-979f-4ad7-8a32-053bce3e69f0",
       "name": "Parse Agent JSON1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 1,
       "position": [
-        2060,
-        135
+        1460,
+        35
       ]
     },
     {
       "parameters": {
         "operation": "send",
         "phoneNumberId": "727976767061895",
-        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}",
+        "recipientPhoneNumber": "={{ $json.intention.telefono }}",
         "textBody": "={{ $('Agente OpenAI1').item.json.choices[0].message.content.parseJson().agentReply }}",
         "additionalFields": {
           "previewUrl": true
         }
       },
-      "id": "4727493a-797d-4dfb-84e0-f193bd8c89c9",
+      "id": "2bb01237-e5d9-41ec-a027-2516eda013ec",
       "name": "WA Respuesta (pide más)1",
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        2720,
-        160
+        2120,
+        60
       ],
       "webhookId": "2fac9622-7dee-4449-b7ee-bd322bca3706",
       "credentials": {
@@ -593,13 +593,13 @@
           "previewUrl": true
         }
       },
-      "id": "5f871cc2-6774-4af8-bfce-2bed06237a71",
+      "id": "daed2e6a-e4c2-4a0b-a597-bdea465d8cd6",
       "name": "WA Confirmación + Link1",
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        2720,
-        -40
+        2120,
+        -140
       ],
       "webhookId": "8bb9bd2a-1856-4cf8-ac16-74ce6480f763",
       "credentials": {
@@ -637,10 +637,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1400,
-        235
+        800,
+        135
       ],
-      "id": "ea0804bd-db50-42b2-a507-298fae559d84",
+      "id": "96280a8f-20c3-4093-a1c1-03624b53e110",
       "name": "¿Hay intención abierta?"
     },
     {
@@ -671,10 +671,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2280,
-        135
+        1680,
+        35
       ],
-      "id": "742ee610-7d40-4e59-9ff4-6b33908e9201",
+      "id": "62e2160d-a794-4e77-bb0d-31e34e130010",
       "name": "Tiene todo?1"
     },
     {
@@ -682,10 +682,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        300,
-        -40
+        -300,
+        -140
       ],
-      "id": "a61f206b-d7ea-473f-b2fa-c1bf6d5b5019",
+      "id": "73b6b292-a86b-48d4-8a06-f406a4dfd085",
       "name": "Merge"
     }
   ],
@@ -1040,14 +1040,14 @@
         "messages": [
           {
             "from": "5491124557946",
-            "id": "wamid.HBgNNTQ5MTEyNDU1Nzk0NhUCABIYFDNBNDFFMUExRUJBMTE4MDMzRkI3AA==",
-            "timestamp": "1772681676",
+            "id": "wamid.HBgNNTQ5MTEyNDU1Nzk0NhUCABIYFDNBOTk0ODk5RDc0RTI5MDc2RjI3AA==",
+            "timestamp": "1772683416",
             "type": "audio",
             "audio": {
               "mime_type": "audio/ogg; codecs=opus",
-              "sha256": "3BmTpmsXUVhvdD3iO/VBPO5TVJbgzMZN5m4nkG0Vlg4=",
-              "id": "938050272734796",
-              "url": "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=938050272734796&source=webhook&ext=1772681977&hash=ARm4vnCGhALGSdmutEHpZ0UHtGYcabFpjia8ZNdqOXi_6g",
+              "sha256": "hIY29CELAb8/SEQBQFxzg/JOpbko/NZR9cvkYpGWTbA=",
+              "id": "1446374427036903",
+              "url": "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1446374427036903&source=webhook&ext=1772683718&hash=ARlUwk21Gexdh08siW7-6RenWQ7wTBzJjjysl5Vc-iiVeg",
               "voice": true
             }
           }
