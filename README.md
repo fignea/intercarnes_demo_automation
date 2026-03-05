@@ -185,4 +185,9 @@ No requiere login. Es solo para ver lo que se generó por API.
 
 La carga de la imagen y el audio se hace por afuera (por ejemplo, vía FTP usando las credenciales del `.env`) y en la intención/orden sólo se guarda la URL pública.
 
+### 6. n8n (WhatsApp + FTP)
+
+- **URL base de medios:** En los nodos **Normalizar (imagen)** y **Normalizar (audio)** del blueprint hay una constante `BASE_MEDIA` (p. ej. `https://srv1596.hstgr.io/intercarnes`). Debe ser la URL pública donde se sirven las carpetas `/imagenes` y `/audios` subidas por FTP. Si usás otro dominio o ruta, cambiá esa constante en ambos nodos.
+- **Repetición de mensajes:** Si el bot responde varias veces al mismo mensaje, puede ser por reintentos del webhook de WhatsApp. El nodo **Solo mensajes** procesa un ítem por ejecución; si el webhook dispara varias ejecuciones para el mismo mensaje, en n8n podés revisar la configuración del trigger o agregar deduplicación por `messages[0].id` si lo necesitás.
+
 # intercarnes_demo_automation

@@ -32,12 +32,12 @@ router.post('/', async (req, res) => {
         (intention_key, producto, cantidad, foto_url, audio_url, telefono, nombre, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
        ON DUPLICATE KEY UPDATE
-         producto = VALUES(producto),
-         cantidad = VALUES(cantidad),
-         foto_url = VALUES(foto_url),
-         audio_url = VALUES(audio_url),
-         telefono = VALUES(telefono),
-         nombre = VALUES(nombre),
+         producto = COALESCE(NULLIF(VALUES(producto), ''), producto),
+         cantidad = COALESCE(VALUES(cantidad), cantidad),
+         foto_url = COALESCE(NULLIF(TRIM(VALUES(foto_url)), ''), foto_url),
+         audio_url = COALESCE(NULLIF(TRIM(VALUES(audio_url)), ''), audio_url),
+         telefono = COALESCE(NULLIF(VALUES(telefono), ''), telefono),
+         nombre = COALESCE(NULLIF(VALUES(nombre), ''), nombre),
          updated_at = NOW()`,
       [id, producto || null, cantidad || null, foto_url || null, audio_url || null, phoneNorm || telefono || null, nombre || null]
     );
